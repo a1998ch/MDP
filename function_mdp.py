@@ -18,14 +18,11 @@ def nodes_index(nodes_count, rastr):
     qn = rastr.Tables("node").Cols("qn")
     tg = rastr.Tables("node").Cols("tg_phi")
     tip = rastr.Tables("node").Cols("tip")
-    if len(SLOVARIC_NODES_INDEX) == 0:
-        for i in range(nodes_count):
-            SLOVARIC_NODES_INDEX[ny.Z(i)] = i
-            if tip.Z(i) == 1 and pn.Z(i) != 0:
-                tg.SetZ(i, qn.Z(i) / pn.Z(i))
-        return SLOVARIC_NODES_INDEX
-    else:
-        return SLOVARIC_NODES_INDEX
+    for i in range(nodes_count):
+        SLOVARIC_NODES_INDEX[ny.Z(i)] = i
+        if tip.Z(i) == 1 and pn.Z(i) != 0:
+            tg.SetZ(i, qn.Z(i) / pn.Z(i))
+    return SLOVARIC_NODES_INDEX
 
 
 def index_vetv_sech_f(rastr, vetv_count, flowgate):
@@ -69,16 +66,13 @@ def p_sech_nach_f(rastr, vetv_count, flowgate):
     np = rastr.Tables("vetv").Cols("np")
     p_nach = rastr.Tables("vetv").Cols("pl_ip")
     global P_SECH_NACH
-    if P_SECH_NACH == 0:
-        for i in range(vetv_count):
-            for j in range(1, len(flowgate.index) + 1):
-                if n_nach.Z(i) == flowgate.at[f'line_{j}', 'ip'] and \
-                    n_kon.Z(i) == flowgate.at[f'line_{j}', 'iq'] and \
-                        np.Z(i) == flowgate.at[f'line_{j}', 'np']:
-                    P_SECH_NACH += p_nach.Z(i)
-        return P_SECH_NACH
-    else:
-        return P_SECH_NACH
+    for i in range(vetv_count):
+        for j in range(1, len(flowgate.index) + 1):
+            if n_nach.Z(i) == flowgate.at[f'line_{j}', 'ip'] and \
+                n_kon.Z(i) == flowgate.at[f'line_{j}', 'iq'] and \
+                    np.Z(i) == flowgate.at[f'line_{j}', 'np']:
+                P_SECH_NACH += p_nach.Z(i)
+    return P_SECH_NACH
 
 
 def index_vozmush_f(rastr, vetv_count, faults):
@@ -96,16 +90,13 @@ def index_vozmush_f(rastr, vetv_count, faults):
     n_nach = rastr.Tables("vetv").Cols("ip")
     n_kon = rastr.Tables("vetv").Cols("iq")
     np = rastr.Tables("vetv").Cols("np")
-    if len(INDEX_VOZMUSH) == 0:
-        for i in range(vetv_count):
-            for k in range(len(faults.index)):
-                if n_nach.Z(i) == faults.iloc[k]['ip'] and \
-                    n_kon.Z(i) == faults.iloc[k]['iq'] and \
-                        np.Z(i) == faults.iloc[k]['np']:
-                    INDEX_VOZMUSH.append(i)
-        return INDEX_VOZMUSH
-    else:
-        return INDEX_VOZMUSH
+    for i in range(vetv_count):
+        for k in range(len(faults.index)):
+            if n_nach.Z(i) == faults.iloc[k]['ip'] and \
+                n_kon.Z(i) == faults.iloc[k]['iq'] and \
+                    np.Z(i) == faults.iloc[k]['np']:
+                INDEX_VOZMUSH.append(i)
+    return INDEX_VOZMUSH
 
 
 def utyazhelenie(nodes_count, rastr, vector):
