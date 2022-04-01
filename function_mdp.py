@@ -264,7 +264,6 @@ def pred_2(nodes_count, rastr, vector, vetv_count, flowgate):
             utyazhelenie(nodes_count, rastr, vector)
             rastr.rgm('p')
         else:
-            peretok_v_sechenii(rastr, vetv_count, flowgate)
             break
     return peretok_v_sechenii(rastr, vetv_count, flowgate)
 
