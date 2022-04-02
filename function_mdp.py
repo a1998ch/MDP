@@ -132,7 +132,7 @@ def utyazhelenie(nodes_count, rastr, vector):
                     SLOVARIC_NODES_INDEX.get(i)) + vector.iloc[j]['value'])
 
 
-def obratnoe_utyazhelenie(nodes_count, rastr, vector):
+def obratnoe_utyazhelenie(rastr, vector):
     """Функция осуществляет изменение мощности нагрузки
        и генерации в соответствии с заданной траекторией
        утяжеления
@@ -181,7 +181,7 @@ def vozvrat_k_ishodnomu_regimu(
     while True:
         rastr.rgm('p')
         if peretok_v_sechenii(rastr, vetv_count, flowgate) > P_SECH_NACH:
-            obratnoe_utyazhelenie(nodes_count, rastr, vector)
+            obratnoe_utyazhelenie(rastr, vector)
             rastr.rgm('p')
         else:
             break
