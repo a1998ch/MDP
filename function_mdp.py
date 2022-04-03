@@ -1,9 +1,3 @@
-SLOVARIC_NODES_INDEX = {}
-INDEX_VETV_SECH = []
-INDEX_VOZMUSH = []
-P_SECH_NACH = 0
-
-
 def nodes_index(nodes_count, rastr):
     """Функция определяет индексы узлов режима
 
@@ -13,19 +7,22 @@ def nodes_index(nodes_count, rastr):
     Возвращает:
         словарь узлов и их индексов режима.
     """
-    ny = rastr.Tables("node").Cols("ny")
-    pn = rastr.Tables("node").Cols("pn")
-    qn = rastr.Tables("node").Cols("qn")
-    tg = rastr.Tables("node").Cols("tg_phi")
-    tip = rastr.Tables("node").Cols("tip")
-    for i in range(nodes_count):
-        SLOVARIC_NODES_INDEX[ny.Z(i)] = i
-        if tip.Z(i) == 1 and pn.Z(i) != 0:
-            tg.SetZ(i, qn.Z(i) / pn.Z(i))
-    return SLOVARIC_NODES_INDEX
+    if not hasattr(nodes_index, '_state'):
+        slovaric_nodes_index = {}
+        ny = rastr.Tables("node").Cols("ny")
+        pn = rastr.Tables("node").Cols("pn")
+        qn = rastr.Tables("node").Cols("qn")
+        tg = rastr.Tables("node").Cols("tg_phi")
+        tip = rastr.Tables("node").Cols("tip")
+        for i in range(nodes_count):
+            slovaric_nodes_index[ny.Z(i)] = i
+            if tip.Z(i) == 1 and pn.Z(i) != 0:
+                tg.SetZ(i, qn.Z(i) / pn.Z(i))
+        nodes_index._state = slovaric_nodes_index
+    return nodes_index._state
 
 
-def index_vetv_sech_f(rastr, vetv_count, flowgate):
+def index_vetv_sech(rastr, vetv_count, flowgate):
     """Функция определяет индексы ветвей в сечении
 
     Аргументы:
@@ -35,22 +32,22 @@ def index_vetv_sech_f(rastr, vetv_count, flowgate):
     Возвращает:
         словарь узлов и их индексов режима.
     """
-    n_nach = rastr.Tables("vetv").Cols("ip")
-    n_kon = rastr.Tables("vetv").Cols("iq")
-    np = rastr.Tables("vetv").Cols("np")
-    if len(INDEX_VETV_SECH) == 0:
+    if not hasattr(index_vetv_sech, '_state'):
+        index_vetv = []
+        n_nach = rastr.Tables("vetv").Cols("ip")
+        n_kon = rastr.Tables("vetv").Cols("iq")
+        np = rastr.Tables("vetv").Cols("np")
         for i in range(vetv_count):
             for j in range(1, len(flowgate.index) + 1):
                 if n_nach.Z(i) == flowgate.at[f'line_{j}', 'ip'] and \
                     n_kon.Z(i) == flowgate.at[f'line_{j}', 'iq'] and \
                         np.Z(i) == flowgate.at[f'line_{j}', 'np']:
-                    INDEX_VETV_SECH.append(i)
-        return INDEX_VETV_SECH
-    else:
-        return INDEX_VETV_SECH
+                    index_vetv.append(i)
+        index_vetv_sech._state = index_vetv
+    return index_vetv_sech._state
 
 
-def p_sech_nach_f(rastr, vetv_count, flowgate):
+def p_sech_nach(rastr, vetv_count, flowgate):
     """Функция определяет переток в сечении
        в исходном режиме
 
@@ -61,21 +58,23 @@ def p_sech_nach_f(rastr, vetv_count, flowgate):
     Возвращает:
         переток в сечении в исходном режиме.
     """
-    n_nach = rastr.Tables("vetv").Cols("ip")
-    n_kon = rastr.Tables("vetv").Cols("iq")
-    np = rastr.Tables("vetv").Cols("np")
-    p_nach = rastr.Tables("vetv").Cols("pl_ip")
-    global P_SECH_NACH
-    for i in range(vetv_count):
-        for j in range(1, len(flowgate.index) + 1):
-            if n_nach.Z(i) == flowgate.at[f'line_{j}', 'ip'] and \
-                n_kon.Z(i) == flowgate.at[f'line_{j}', 'iq'] and \
-                    np.Z(i) == flowgate.at[f'line_{j}', 'np']:
-                P_SECH_NACH += p_nach.Z(i)
-    return P_SECH_NACH
+    if not hasattr(p_sech_nach, '_state'):
+        p_sech = 0
+        n_nach = rastr.Tables("vetv").Cols("ip")
+        n_kon = rastr.Tables("vetv").Cols("iq")
+        np = rastr.Tables("vetv").Cols("np")
+        p_nach = rastr.Tables("vetv").Cols("pl_ip")
+        for i in range(vetv_count):
+            for j in range(1, len(flowgate.index) + 1):
+                if n_nach.Z(i) == flowgate.at[f'line_{j}', 'ip'] and \
+                    n_kon.Z(i) == flowgate.at[f'line_{j}', 'iq'] and \
+                        np.Z(i) == flowgate.at[f'line_{j}', 'np']:
+                    p_sech += p_nach.Z(i)
+        p_sech_nach._state = p_sech
+    return p_sech_nach._state
 
 
-def index_vozmush_f(rastr, vetv_count, faults):
+def index_vozmush(rastr, vetv_count, faults):
     """Функция определяет индексы ветвей,
        которые входят в нормативные возмущения
 
@@ -87,16 +86,19 @@ def index_vozmush_f(rastr, vetv_count, faults):
         индексы ветвей, которые входят
         в нормативные возмущения.
     """
-    n_nach = rastr.Tables("vetv").Cols("ip")
-    n_kon = rastr.Tables("vetv").Cols("iq")
-    np = rastr.Tables("vetv").Cols("np")
-    for i in range(vetv_count):
-        for k in range(len(faults.index)):
-            if n_nach.Z(i) == faults.iloc[k]['ip'] and \
-                n_kon.Z(i) == faults.iloc[k]['iq'] and \
-                    np.Z(i) == faults.iloc[k]['np']:
-                INDEX_VOZMUSH.append(i)
-    return INDEX_VOZMUSH
+    if not hasattr(index_vozmush, '_state'):
+        index_vozmush_p = []
+        n_nach = rastr.Tables("vetv").Cols("ip")
+        n_kon = rastr.Tables("vetv").Cols("iq")
+        np = rastr.Tables("vetv").Cols("np")
+        for i in range(vetv_count):
+            for k in range(len(faults.index)):
+                if n_nach.Z(i) == faults.iloc[k]['ip'] and \
+                    n_kon.Z(i) == faults.iloc[k]['iq'] and \
+                        np.Z(i) == faults.iloc[k]['np']:
+                    index_vozmush_p.append(i)
+        index_vozmush._state = index_vozmush_p
+    return index_vozmush._state
 
 
 def utyazhelenie(nodes_count, rastr, vector):
@@ -111,7 +113,6 @@ def utyazhelenie(nodes_count, rastr, vector):
     Возвращает:
         Изменённый режим.
     """
-    nodes_index(nodes_count, rastr)
     pn = rastr.Tables("node").Cols("pn")
     pg = rastr.Tables("node").Cols("pg")
     qn = rastr.Tables("node").Cols("qn")
@@ -119,20 +120,22 @@ def utyazhelenie(nodes_count, rastr, vector):
     for j, i in enumerate(vector.node.T.tolist()):
         if vector.iloc[j]['variable'] == 'pn':
             pn.SetZ(
-                SLOVARIC_NODES_INDEX.get(i), pn.Z(
-                    SLOVARIC_NODES_INDEX.get(i)) + vector.iloc[j]['value'])
+                nodes_index(nodes_count, rastr).get(i), pn.Z(
+                    nodes_index(
+                        nodes_count, rastr).get(i)) + vector.iloc[j]['value'])
             if vector.iloc[j]['tg'] == 1:
                 qn.SetZ(
-                    SLOVARIC_NODES_INDEX.get(i), tg.Z(
-                        SLOVARIC_NODES_INDEX.get(i)) * pn.Z(
-                            SLOVARIC_NODES_INDEX.get(i)))
+                    nodes_index(nodes_count, rastr).get(i), tg.Z(
+                        nodes_index(nodes_count, rastr).get(i)) * pn.Z(
+                            nodes_index(nodes_count, rastr).get(i)))
         else:
             pg.SetZ(
-                SLOVARIC_NODES_INDEX.get(i), pg.Z(
-                    SLOVARIC_NODES_INDEX.get(i)) + vector.iloc[j]['value'])
+                nodes_index(nodes_count, rastr).get(i), pg.Z(
+                    nodes_index(
+                        nodes_count, rastr).get(i)) + vector.iloc[j]['value'])
 
 
-def obratnoe_utyazhelenie(rastr, vector):
+def obratnoe_utyazhelenie(nodes_count, rastr, vector):
     """Функция осуществляет изменение мощности нагрузки
        и генерации в соответствии с заданной траекторией
        утяжеления
@@ -151,20 +154,23 @@ def obratnoe_utyazhelenie(rastr, vector):
     for j, i in enumerate(vector.node.T.tolist()):
         if vector.iloc[j]['variable'] == 'pn':
             pn.SetZ(
-                SLOVARIC_NODES_INDEX.get(i), pn.Z(
-                    SLOVARIC_NODES_INDEX.get(i)) - vector.iloc[j]['value'])
+                nodes_index(nodes_count, rastr).get(i), pn.Z(
+                    nodes_index(
+                        nodes_count, rastr).get(i)) - vector.iloc[j]['value'])
             if vector.iloc[j]['tg'] == 1:
                 qn.SetZ(
-                    SLOVARIC_NODES_INDEX.get(i), tg.Z(
-                        SLOVARIC_NODES_INDEX.get(i)) * pn.Z(
-                            SLOVARIC_NODES_INDEX.get(i)))
+                    nodes_index(nodes_count, rastr).get(i), tg.Z(
+                        nodes_index(nodes_count, rastr).get(i)) * pn.Z(
+                            nodes_index(nodes_count, rastr).get(i)))
         else:
             pg.SetZ(
-                SLOVARIC_NODES_INDEX.get(i), pg.Z(
-                    SLOVARIC_NODES_INDEX.get(i)) - vector.iloc[j]['value'])
+                nodes_index(nodes_count, rastr).get(i), pg.Z(
+                    nodes_index(
+                        nodes_count, rastr).get(i)) - vector.iloc[j]['value'])
 
 
-def vozvrat_k_ishodnomu_regimu(rastr, vector, vetv_count, flowgate):
+def vozvrat_k_ishodnomu_regimu(
+        nodes_count, rastr, vector, vetv_count, flowgate):
     """Функция осуществляет изменение мощности нагрузки
        и генерации до достижения исходного режима
 
@@ -179,8 +185,10 @@ def vozvrat_k_ishodnomu_regimu(rastr, vector, vetv_count, flowgate):
     """
     while True:
         rastr.rgm('p')
-        if peretok_v_sechenii(rastr, vetv_count, flowgate) > P_SECH_NACH:
-            obratnoe_utyazhelenie(rastr, vector)
+        if peretok_v_sechenii(
+            rastr, vetv_count, flowgate) > p_sech_nach(
+                rastr, vetv_count, flowgate):
+            obratnoe_utyazhelenie(nodes_count, rastr, vector)
             rastr.rgm('p')
         else:
             break
@@ -197,10 +205,9 @@ def peretok_v_sechenii(rastr, vetv_count, flowgate):
     Возвращает:
         Величину перетока в сечении.
     """
-    index_vetv_sech_f(rastr, vetv_count, flowgate)
     p_nach = rastr.Tables("vetv").Cols("pl_ip")
     sechenie = 0
-    for j in INDEX_VETV_SECH:
+    for j in index_vetv_sech(rastr, vetv_count, flowgate):
         sechenie += p_nach.Z(j)
     return sechenie
 
@@ -221,7 +228,7 @@ def pred_1(nodes_count, rastr, vector, vetv_count, flowgate):
     Возвращает:
         Предельный переток в сечении.
     """
-    p_sech_nach_f(rastr, vetv_count, flowgate)
+    p_sech_nach(rastr, vetv_count, flowgate)
     while rastr.rgm('p') == 0:
         utyazhelenie(nodes_count, rastr, vector)
         rastr.rgm('p')
@@ -275,10 +282,9 @@ def pred_3(nodes_count, rastr, vector, vetv_count, flowgate, faults):
     Возвращает:
         Предельный переток в сечении.
     """
-    index_vozmush_f(rastr, vetv_count, faults)
     sta = rastr.Tables("vetv").Cols("sta")
     pred = []
-    index_vozmush_statica = list(INDEX_VOZMUSH)
+    index_vozmush_statica = list(index_vozmush(rastr, vetv_count, faults))
     listic_sta_faults_statica = faults.sta.T.tolist()
 
     for j in range(len(index_vozmush_statica)):
@@ -297,7 +303,7 @@ def pred_3(nodes_count, rastr, vector, vetv_count, flowgate, faults):
             rastr.rgm('p')
         if len(index_vozmush_statica) > 0:
             vozvrat_k_ishodnomu_regimu(
-                rastr, vector, vetv_count, flowgate)
+                nodes_count, rastr, vector, vetv_count, flowgate)
     return min(pred)
 
 
@@ -322,7 +328,7 @@ def pred_4(nodes_count, rastr, vector, vetv_count, flowgate, faults):
     unom = rastr.Tables("node").Cols("uhom")
     uras = rastr.Tables("node").Cols("vras")
     pred = []
-    index_vozmush_naprygenie = list(INDEX_VOZMUSH)
+    index_vozmush_naprygenie = list(index_vozmush(rastr, vetv_count, faults))
     listic_sta_faults_naprygenie = faults.sta.T.tolist()
 
     for j in range(len(index_vozmush_naprygenie)):
@@ -353,7 +359,7 @@ def pred_4(nodes_count, rastr, vector, vetv_count, flowgate, faults):
             listic_sta_faults_naprygenie.pop(0)
         if len(index_vozmush_naprygenie) > 0:
             vozvrat_k_ishodnomu_regimu(
-                rastr, vector, vetv_count, flowgate)
+                nodes_count, rastr, vector, vetv_count, flowgate)
     return min(pred)
 
 
@@ -407,7 +413,7 @@ def pred_6(nodes_count, rastr, vector, vetv_count, flowgate, faults):
     zag_i_av = rastr.Tables("vetv").Cols("zag_i_av")
     zag_it_av = rastr.Tables("vetv").Cols("zag_it_av")
     pred = []
-    index_vozmush_tok = list(INDEX_VOZMUSH)
+    index_vozmush_tok = list(index_vozmush(rastr, vetv_count, faults))
     listic_sta_faults_tok = faults.sta.T.tolist()
 
     for j in range(len(index_vozmush_tok)):
@@ -440,5 +446,5 @@ def pred_6(nodes_count, rastr, vector, vetv_count, flowgate, faults):
             listic_sta_faults_tok.pop(0)
         if len(index_vozmush_tok) > 0:
             vozvrat_k_ishodnomu_regimu(
-                rastr, vector, vetv_count, flowgate)
+                nodes_count, rastr, vector, vetv_count, flowgate)
     return min(pred)
