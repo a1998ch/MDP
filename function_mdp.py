@@ -164,8 +164,7 @@ def obratnoe_utyazhelenie(rastr, vector):
                     SLOVARIC_NODES_INDEX.get(i)) - vector.iloc[j]['value'])
 
 
-def vozvrat_k_ishodnomu_regimu(
-        nodes_count, rastr, vector, vetv_count, flowgate):
+def vozvrat_k_ishodnomu_regimu(rastr, vector, vetv_count, flowgate):
     """Функция осуществляет изменение мощности нагрузки
        и генерации до достижения исходного режима
 
@@ -298,7 +297,7 @@ def pred_3(nodes_count, rastr, vector, vetv_count, flowgate, faults):
             rastr.rgm('p')
         if len(index_vozmush_statica) > 0:
             vozvrat_k_ishodnomu_regimu(
-                nodes_count, rastr, vector, vetv_count, flowgate)
+                rastr, vector, vetv_count, flowgate)
     return min(pred)
 
 
@@ -354,7 +353,7 @@ def pred_4(nodes_count, rastr, vector, vetv_count, flowgate, faults):
             listic_sta_faults_naprygenie.pop(0)
         if len(index_vozmush_naprygenie) > 0:
             vozvrat_k_ishodnomu_regimu(
-                nodes_count, rastr, vector, vetv_count, flowgate)
+                rastr, vector, vetv_count, flowgate)
     return min(pred)
 
 
@@ -441,5 +440,5 @@ def pred_6(nodes_count, rastr, vector, vetv_count, flowgate, faults):
             listic_sta_faults_tok.pop(0)
         if len(index_vozmush_tok) > 0:
             vozvrat_k_ishodnomu_regimu(
-                nodes_count, rastr, vector, vetv_count, flowgate)
+                rastr, vector, vetv_count, flowgate)
     return min(pred)

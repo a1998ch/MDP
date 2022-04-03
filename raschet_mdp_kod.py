@@ -25,7 +25,7 @@ p_pred1 = fm.pred_1(nodes_count, rastr, vector, vetv_count, flowgate)
 p_mdp1 = 0.8 * p_pred1 - p_nk
 
 
-fm.vozvrat_k_ishodnomu_regimu(nodes_count, rastr, vector, vetv_count, flowgate)
+fm.vozvrat_k_ishodnomu_regimu(rastr, vector, vetv_count, flowgate)
 rastr.rgm('p')
 
 
@@ -36,7 +36,7 @@ p_pred2 = fm.pred_2(nodes_count, rastr, vector, vetv_count, flowgate)
 p_mdp2 = p_pred2 - p_nk
 
 
-fm.vozvrat_k_ishodnomu_regimu(nodes_count, rastr, vector, vetv_count, flowgate)
+fm.vozvrat_k_ishodnomu_regimu(rastr, vector, vetv_count, flowgate)
 rastr.rgm('p')
 
 
@@ -48,7 +48,7 @@ p_pred3 = fm.pred_3(nodes_count, rastr, vector, vetv_count, flowgate, faults)
 p_mdp3 = p_pred3 - p_nk
 
 
-fm.vozvrat_k_ishodnomu_regimu(nodes_count, rastr, vector, vetv_count, flowgate)
+fm.vozvrat_k_ishodnomu_regimu(rastr, vector, vetv_count, flowgate)
 rastr.rgm('p')
 
 
@@ -59,7 +59,7 @@ p_pred4 = fm.pred_4(nodes_count, rastr, vector, vetv_count, flowgate, faults)
 p_mdp4 = p_pred4 - p_nk
 
 
-fm.vozvrat_k_ishodnomu_regimu(nodes_count, rastr, vector, vetv_count, flowgate)
+fm.vozvrat_k_ishodnomu_regimu(rastr, vector, vetv_count, flowgate)
 rastr.rgm('p')
 
 
@@ -70,7 +70,7 @@ p_pred5 = fm.pred_5(nodes_count, rastr, vector, vetv_count, flowgate)
 p_mdp5 = p_pred5 - p_nk
 
 
-fm.vozvrat_k_ishodnomu_regimu(nodes_count, rastr, vector, vetv_count, flowgate)
+fm.vozvrat_k_ishodnomu_regimu(rastr, vector, vetv_count, flowgate)
 rastr.rgm('p')
 
 
